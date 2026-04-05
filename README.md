@@ -1,43 +1,38 @@
-# pixi-build-practice
+# Pixi Python Practice
 
-A basic Hello World Python project using [FastAPI](https://fastapi.tiangolo.com/) to serve a Hello World message in the browser. [Pixi](https://pixi.sh) manages all dependencies, environments, and tasks using the `pixi-build-python` build backend.
+A collection of Python projects focused on learning and understanding [Pixi](https://pixi.sh) — a fast, modern package manager and workflow tool — and how it can be used to manage Python projects.
+
+## Purpose
+
+This repository serves as a hands-on playground for exploring Pixi's capabilities for Python development, including:
+
+- Dependency management via conda-forge and PyPI
+- Environment configuration and reproducibility
+- Task running and build backends (e.g. `pixi-build-python`)
+- Multi-platform support
+- Project structure and best practices
+
+## Projects
+
+| Project | Description |
+|---------|-------------|
+| [hello-world](hello-world/) | A basic FastAPI Hello World app managed entirely by Pixi |
+
+## Documentation
+
+- [Pixi Guide](docs/pixi_guide.md) — A comprehensive guide covering Pixi from novice to pro
 
 ## Requirements
 
-- [Pixi](https://pixi.sh/latest/#installation) (v0.65.0 or later required)
+- [Pixi](https://pixi.sh/latest/#installation) (v0.65.0 or later)
 
 ## Getting Started
 
-### Install dependencies
+Each project lives in its own directory with its own `pixi.toml`. Navigate into a project folder and run:
 
 ```bash
 pixi install
-```
-
-### Start the server
-
-```bash
 pixi run start
 ```
 
-Then open your browser at [http://localhost:8000](http://localhost:8000) to see the Hello World message.
-
-## Project Structure
-
-```
-hello_world/
-    __init__.py
-    main.py         # FastAPI application
-pixi.toml           # Pixi workspace, package, and task configuration
-pyproject.toml      # Python package metadata and build system (hatchling)
-```
-
-## Pixi Tasks
-
-| Task    | Description                        |
-|---------|------------------------------------|
-| `start` | Start the FastAPI development server |
-
-## Build Backend
-
-This project uses `pixi-build-python` as the build backend, which builds the Python package as a conda package using standard PEP 517/518 tooling (hatchling).
+Refer to the individual project README for details.
