@@ -22,7 +22,7 @@
 15. [Other Build Backends](#15-other-build-backends)
 16. [Distributing Your Project](#16-distributing-your-project)
 17. [CI/CD Integration](#17-cicd-integration)
-18. [Advanced Features](#18-advanced-features)
+18. [Advanced Features](#18-advanced-features) *(includes exclude-newer, constraints, and more)*
 19. [Configuration Reference](#19-configuration-reference)
 20. [CLI Reference](#20-cli-reference)
 21. [Tips, Tricks & Best Practices](#21-tips-tricks--best-practices)
@@ -1650,6 +1650,39 @@ The `setup-pixi` action automatically caches the Pixi environment based on the l
 ---
 
 ## 18. Advanced Features
+
+
+### Security Hardening: `exclude-newer`
+
+Pixi (via its `uv` integration for PyPI) supports the `exclude-newer` field. This is a critical feature for **security hardening**, **reproducible builds**, and **package cooldown periods**.
+
+#### What is `exclude-newer`?
+
+It tells the resolver to ignore any PyPI packages published *after* a specific UTC timestamp. This is useful for:
+- **Reproducibility:** Ensuring that a "fresh" install today results in the same versions as an install from a month ago, even without a lockfile.
+- **Supply Chain Security:** Preventing "dependency confusion" or "malicious release" attacks where an attacker pushes a compromised version of a popular package.
+- **Cooldown Periods:** Giving the community time to find bugs in new releases before your project automatically adopts them.
+
+#### How to use it in `pixi.toml` / `pyproject.toml`:
+
+```toml
+[workspace]
+name = "secure-project"
+channels = ["conda-forge"]
+platforms = ["linux-64", "osx-arm64"]
+
+[pypi-options]
+# Only consider PyPI packages published before 2024-05-01
+exclude-newer = "2024-05-01T00:00:00Z"
+```
+
+#### Real-world Hardening Strategy
+
+A robust security strategy involves keeping this date slightly behind current time (e.g., "now minus 7 days"). This ensures you are never the "first mover" on a new, unvetted package version.
+
+---
+
+
 
 ### Workspace Registration (v0.66+)
 
