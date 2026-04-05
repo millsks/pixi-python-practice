@@ -4,7 +4,7 @@ A basic Hello World Python project using [FastAPI](https://fastapi.tiangolo.com/
 
 ## Requirements
 
-- [Pixi](https://pixi.sh/latest/#installation) (v0.40.0 or later recommended)
+- [Pixi](https://pixi.sh/latest/#installation) (v0.65.0 or later required)
 
 ## Getting Started
 
