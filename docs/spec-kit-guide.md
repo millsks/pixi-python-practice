@@ -56,26 +56,31 @@ When you "vibe code" with an AI agent — describe a goal and get code back — 
 
 ### Prerequisites
 
-- Python 3.8+
+- Python 3.12+ (managed by pixi — no separate install needed)
 - Git 2.20+
-- `uv` package manager (recommended)
+- `pixi` package manager (handles Python, dependencies, and tasks)
 - An AI agent: Claude Code, GitHub Copilot, Cursor, Gemini CLI, Windsurf, etc.
 
-### Install `uv` (if not already installed)
+### Install pixi (if not already installed)
 
 ```bash
 # macOS / Linux
-curl -LsSf https://astral.sh/uv/install.sh | sh
+curl -fsSL https://pixi.sh/install.sh | bash
 
 # Windows (PowerShell)
-powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+iwr -useb https://pixi.sh/install.ps1 | iex
+
+# Verify
+pixi --version
 ```
 
-### Install the `specify` CLI
+> pixi manages Python itself — you do **not** need to install Python separately. It will pull Python 3.12+ from conda-forge automatically.
+
+### Install the `specify` CLI via pixi
 
 ```bash
-# Recommended: persistent installation (pinned to latest stable release)
-uv tool install specify-cli --from git+https://github.com/github/spec-kit.git
+# Add specify-cli as a global pixi tool
+pixi global install specify-cli --from git+https://github.com/github/spec-kit.git
 
 # Verify installation
 specify --version
@@ -85,13 +90,16 @@ specify check
 ### One-time usage (no install)
 
 ```bash
-uvx --from git+https://github.com/github/spec-kit.git specify init my-project --ai claude
+# Run directly with pixi exec (no permanent install)
+pixi exec --spec "specify-cli @ git+https://github.com/github/spec-kit.git" -- specify init my-project --ai claude
 ```
 
 ### Upgrading
 
 ```bash
-uv tool install specify-cli --force --from git+https://github.com/github/spec-kit.git@vX.Y.Z
+pixi global upgrade specify-cli
+# Or force reinstall at a specific tag
+pixi global install --force specify-cli --from git+https://github.com/github/spec-kit.git@vX.Y.Z
 ```
 
 ### Initialize a project
@@ -160,15 +168,12 @@ At this level, you'll learn to initialize a project and run your first `/speckit
 ### Step 1: Set up a Pixi Python project
 
 ```bash
-# Install pixi
-curl -fsSL https://pixi.sh/install.sh | bash
-
-# Create a new pixi project
+# Create a new pixi project (Python 3.12 by default)
 pixi init my-data-tool
 cd my-data-tool
 
-# Add Python and basic dependencies
-pixi add python pytest
+# Add Python 3.12+ and basic dependencies from conda-forge
+pixi add "python>=3.12" pytest
 
 # Initialize spec-kit inside the pixi project
 specify init . --ai claude
@@ -289,7 +294,7 @@ Answer these before moving to `/speckit.plan`. This prevents costly rework later
 ```
 /speckit.plan
 - Package manager: pixi (pixi.toml, not requirements.txt or pyproject.toml)
-- Python version: 3.11 via pixi
+- Python version: 3.12+ via pixi (managed by pixi, not system Python)
 - Dependencies: httpx for HTTP, beautifulsoup4 for parsing,
   apscheduler for scheduling, sqlite3 (stdlib) for storage
 - Testing: pytest with pytest-asyncio
@@ -319,7 +324,7 @@ channels = ["conda-forge"]
 platforms = ["linux-64", "osx-arm64", "win-64"]
 
 [dependencies]
-python = ">=3.11"
+python = ">=3.12"
 httpx = "*"
 beautifulsoup4 = "*"
 apscheduler = "*"
@@ -394,13 +399,15 @@ This creates a `constitution.md` (or `.github/copilot-instructions.md` depending
 # Project Constitution
 
 ## Package Management
-- Use pixi exclusively. Never suggest pip, conda, or poetry.
+- Use pixi exclusively. Never suggest pip, uv, conda, or poetry.
+- Python version must be 3.12+ and declared in pixi.toml [dependencies]
 - All dependencies go in pixi.toml under [dependencies]
 - Dev dependencies go under [feature.dev.dependencies]
 - All runnable scripts are defined as [tasks] in pixi.toml
+- Never generate requirements.txt, setup.py, pyproject.toml, or .python-version files
 
 ## Code Quality
-- Python 3.11+ type hints required on all functions
+- Python 3.12+ type hints required on all functions
 - Docstrings required (Google style)
 - ruff for linting (line length: 100)
 - black for formatting
@@ -610,6 +617,20 @@ The entire pipeline must be runnable with a single command.
 
 **Resulting pixi.toml tasks:**
 ```toml
+[project]
+name = "sales-pipeline"
+version = "0.1.0"
+channels = ["conda-forge"]
+platforms = ["linux-64", "osx-arm64", "win-64"]
+
+[dependencies]
+python = ">=3.12"
+pandas = "*"
+matplotlib = "*"
+scikit-learn = "*"
+jupyterlab = "*"
+pytest = "*"
+
 [tasks]
 notebook = "jupyter lab notebooks/"
 pipeline = "python src/pipeline.py"
@@ -636,9 +657,9 @@ outdated package versions. Output should be colorized and actionable.
 - typer for CLI framework
 - rich for terminal output
 - httpx for conda-forge API checks
-- tomllib (stdlib, Python 3.11+) for parsing pixi.toml
+- tomllib (stdlib, Python 3.12+) for parsing pixi.toml
 - pytest + typer's testing utilities for tests
-- Distributed as a pixi tool (specify in pixi.toml)
+- Python 3.12+ via pixi; distributed as a pixi global tool
 ```
 
 ---
@@ -668,8 +689,14 @@ under 512 tokens.
 
 **Resulting pixi.toml:**
 ```toml
+[project]
+name = "text-classifier-api"
+version = "0.1.0"
+channels = ["conda-forge"]
+platforms = ["linux-64", "osx-arm64", "win-64"]
+
 [dependencies]
-python = ">=3.11"
+python = ">=3.12"
 fastapi = "*"
 uvicorn = "*"
 scikit-learn = "*"
@@ -744,23 +771,38 @@ pixi run test → All green? → Merge branch
 ### ⚡ Pixi-Specific Tips
 
 ```bash
+# Install pixi (one-time)
+curl -fsSL https://pixi.sh/install.sh | bash   # macOS/Linux
+iwr -useb https://pixi.sh/install.ps1 | iex    # Windows
+
+# Install specify CLI via pixi global
+pixi global install specify-cli --from git+https://github.com/github/spec-kit.git
+
 # Always initialize spec-kit inside your pixi project
 cd my-pixi-project
 specify init . --ai claude
 
 # Tell the AI to use pixi in your plan
-/speckit.plan Use pixi for all dependency management. Never suggest pip.
+/speckit.plan Use pixi for all dependency management. Python 3.12+. Never suggest pip or uv.
 
 # Run tests after implementation
 pixi run test
 
 # Common pixi.toml task pattern
+[project]
+name = "my-project"
+channels = ["conda-forge"]
+platforms = ["linux-64", "osx-arm64", "win-64"]
+
+[dependencies]
+python = ">=3.12"
+
 [tasks]
-test    = "pytest tests/ -v"
-lint    = "ruff check src/"
-format  = "black src/ tests/"
+test      = "pytest tests/ -v"
+lint      = "ruff check src/"
+format    = "black src/ tests/"
 typecheck = "mypy src/"
-ci      = { depends-on = ["lint", "typecheck", "test"] }
+ci        = { depends-on = ["lint", "typecheck", "test"] }
 ```
 
 ### 🧩 Extension Quick Reference
@@ -803,6 +845,7 @@ specify init . --ai claude --debug
 |---|---|
 | Describe user journeys and outcomes | Describe implementation details |
 | Specify who the users are | Assume the AI knows your users |
+| State Python 3.12+ and pixi as constraints | Leave runtime/tooling unspecified |
 | Include edge cases and failure modes | Leave error handling unspecified |
 | State explicit constraints (no cloud, local only, etc.) | Leave constraints implicit |
 | Reference existing interfaces when brownfield | Ignore existing code |
@@ -815,10 +858,14 @@ specify init . --ai claude --debug
 ### `specify` command not found
 
 ```bash
-# Ensure uv tools are in PATH
-export PATH="$HOME/.local/bin:$PATH"
-# Or re-install
-uv tool install specify-cli --from git+https://github.com/github/spec-kit.git
+# Ensure pixi global bin is in PATH (pixi adds this automatically on install)
+export PATH="$HOME/.pixi/bin:$PATH"
+
+# Re-install via pixi global
+pixi global install specify-cli --from git+https://github.com/github/spec-kit.git
+
+# Verify
+specify --version
 ```
 
 ### Git authentication issues (Linux)
@@ -843,11 +890,24 @@ git config --global credential.helper manager
 
 ### pixi dependency not on conda-forge
 
+```toml
+# In pixi.toml — add PyPI as a fallback channel
+[project]
+channels = ["conda-forge", "pypi"]
+
+[dependencies]
+python = ">=3.12"
+some-conda-package = "*"
+
+[pypi-dependencies]
+some-pypi-only-package = "*"
+```
+
+Or instruct the AI in your plan:
 ```
 /speckit.plan
-Note: <package> is not available on conda-forge. Use the PyPI channel:
-[dependencies]
-<package> = { version = "*", channel = "pypi" }
+Note: <package> is only on PyPI, not conda-forge.
+Add it under [pypi-dependencies] in pixi.toml, not [dependencies].
 ```
 
 ### Tasks are too large / implementation drifts
