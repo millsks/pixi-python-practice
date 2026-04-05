@@ -91,15 +91,16 @@ specify check
 
 ```bash
 # Run directly with pixi exec (no permanent install)
-pixi exec --spec "specify-cli @ git+https://github.com/github/spec-kit.git" -- specify init my-project --ai claude
+pixi exec specify-cli -- specify init my-project --ai claude
 ```
+
+> **Note:** `pixi exec --spec` accepts conda matchspecs, not pip-style git URLs. If `specify-cli` is not yet published to conda-forge, use `pip install git+https://github.com/github/spec-kit.git` in a temporary environment instead.
 
 ### Upgrading
 
 ```bash
-pixi global upgrade specify-cli
-# Or force reinstall at a specific tag
-pixi global install --force specify-cli --from git+https://github.com/github/spec-kit.git@vX.Y.Z
+# Update specify-cli to the latest version
+pixi global update specify-cli
 ```
 
 ### Initialize a project
@@ -776,7 +777,7 @@ curl -fsSL https://pixi.sh/install.sh | bash   # macOS/Linux
 iwr -useb https://pixi.sh/install.ps1 | iex    # Windows
 
 # Install specify CLI via pixi global
-pixi global install specify-cli --from git+https://github.com/github/spec-kit.git
+pixi global install specify-cli
 
 # Always initialize spec-kit inside your pixi project
 cd my-pixi-project
@@ -862,7 +863,7 @@ specify init . --ai claude --debug
 export PATH="$HOME/.pixi/bin:$PATH"
 
 # Re-install via pixi global
-pixi global install specify-cli --from git+https://github.com/github/spec-kit.git
+pixi global install specify-cli
 
 # Verify
 specify --version
