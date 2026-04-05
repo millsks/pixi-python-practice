@@ -80,10 +80,10 @@ pixi --version
 
 ```bash
 # Add specify-cli as a global pixi tool
-pixi global install specify-cli --from git+https://github.com/github/spec-kit.git
+pixi global install specify-cli
 
 # Verify installation
-specify --version
+specify version
 specify check
 ```
 
